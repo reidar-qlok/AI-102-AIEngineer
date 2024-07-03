@@ -11,74 +11,78 @@ namespace rest_client
 {
     class Program
     {
+        // Deklarera variabler för slutpunkt och nyckel för Cognitive Services
         private static string cogSvcEndpoint;
         private static string cogSvcKey;
+
         static async Task Main(string[] args)
         {
             try
             {
-                // Get config settings from AppSettings
+                // Hämta konfigurationsinställningar från appsettings.json
                 IConfigurationBuilder builder = new ConfigurationBuilder().AddJsonFile("appsettings.json");
                 IConfigurationRoot configuration = builder.Build();
                 cogSvcEndpoint = configuration["CognitiveServicesEndpoint"];
                 cogSvcKey = configuration["CognitiveServiceKey"];
 
-                // Set console encoding to unicode
+                // Sätt konsolens kodning till Unicode
                 Console.InputEncoding = Encoding.Unicode;
                 Console.OutputEncoding = Encoding.Unicode;
 
-                // Get user input (until they enter "quit")
+                // Hämta användarens inmatning (tills de skriver "quit")
                 string userText = "";
                 while (userText.ToLower() != "quit")
                 {
-                    Console.WriteLine("Enter some text ('quit' to stop)");
+                    Console.WriteLine("Ange lite text ('quit' för att avsluta)");
                     userText = Console.ReadLine();
                     if (userText.ToLower() != "quit")
                     {
-                        // Call function to detect language
+                        // Anropa funktionen för att detektera språk
                         await GetLanguage(userText);
                     }
-
                 }
             }
             catch (Exception ex)
             {
+                // Fånga och skriv ut eventuella undantag
                 Console.WriteLine(ex.Message);
             }
         }
+
+        // Funktion för att detektera språk
         static async Task GetLanguage(string text)
         {
-            // Construct the JSON request body
             try
             {
+                // Konstruera JSON-begäran
                 JObject jsonBody = new JObject(
-                    // Create a collection of documents (we'll only use one, but you could have more)
+                    // Skapa en samling av dokument (vi använder bara ett, men fler kan läggas till)
                     new JProperty("documents",
                     new JArray(
                         new JObject(
-                            // Each document needs a unique ID and some text
+                            // Varje dokument behöver ett unikt ID och lite text
                             new JProperty("id", 1),
                             new JProperty("text", text)
                     ))));
-                
-                // Encode as UTF-8
+
+                // Koda som UTF-8
                 UTF8Encoding utf8 = new UTF8Encoding(true, true);
                 byte[] encodedBytes = utf8.GetBytes(jsonBody.ToString());
-                
-                // Let's take a look at the JSON we'll send to the service
+
+                // Visa JSON som vi skickar till tjänsten
                 Console.WriteLine(utf8.GetString(encodedBytes, 0, encodedBytes.Length));
 
-                // Make an HTTP request to the REST interface
+                // Skapa en HTTP-klient för att göra REST-anrop
                 var client = new HttpClient();
                 var queryString = HttpUtility.ParseQueryString(string.Empty);
 
-                // Add the authentication key to the header
+                // Lägg till autentiseringsnyckeln i headern
                 client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", cogSvcKey);
 
-                // Use the endpoint to access the Text Analytics language API
+                // Använd slutpunkten för att komma åt Text Analytics språk-API
                 var uri = cogSvcEndpoint + "text/analytics/v3.1/languages?" + queryString;
 
-                // Send the request and get the response
+                // Skicka begäran och få svaret
                 HttpResponseMessage response;
                 using (var content = new ByteArrayContent(encodedBytes))
                 {
@@ -86,28 +90,29 @@ namespace rest_client
                     response = await client.PostAsync(uri, content);
                 }
 
-                // If the call was successful, get the response
+                // Om anropet var framgångsrikt, få svaret
                 if (response.StatusCode == System.Net.HttpStatusCode.OK)
                 {
-                    // Display the JSON response in full (just so we can see it)
+                    // Visa hela JSON-svaret (bara för att vi ska kunna se det)
                     string responseContent = await response.Content.ReadAsStringAsync();
                     JObject results = JObject.Parse(responseContent);
                     Console.WriteLine(results.ToString());
 
-                    // Extract the detected language name for each document
+                    // Extrahera detekterat språknamn för varje dokument
                     foreach (JObject document in results["documents"])
                     {
-                        Console.WriteLine("\nLanguage: " + (string)document["detectedLanguage"]["name"]);
+                        Console.WriteLine("\nSpråk: " + (string)document["detectedLanguage"]["name"]);
                     }
                 }
                 else
                 {
-                    // Something went wrong, write the whole response
+                    // Något gick fel, skriv hela svaret
                     Console.WriteLine(response.ToString());
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
+                // Fånga och skriv ut eventuella undantag
                 Console.WriteLine(ex.Message);
             }
 
