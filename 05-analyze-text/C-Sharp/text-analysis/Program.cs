@@ -2,6 +2,8 @@
 using System.IO;
 using System.Text;
 using Microsoft.Extensions.Configuration;
+using Azure;
+using Azure.AI.TextAnalytics;
 
 // Import namespaces
 
@@ -21,6 +23,9 @@ namespace text_analysis
                 string cogSvcKey = configuration["CognitiveServiceKey"];
 
                 // Create client using endpoint and key
+                AzureKeyCredential credentials = new AzureKeyCredential(cogSvcKey);
+                Uri endpoint = new Uri(cogSvcEndpoint);
+                TextAnalyticsClient CogClient = new TextAnalyticsClient(endpoint, credentials);
 
 
                 // Analyze each text file in the reviews folder
@@ -36,18 +41,22 @@ namespace text_analysis
                     Console.WriteLine("\n" + text);
 
                     // Get language
+                    
 
 
                     // Get sentiment
-
+                   
 
                     // Get key phrases
+                  
 
 
                     // Get entities
+                
 
 
                     // Get linked entities
+                   
 
 
                 }

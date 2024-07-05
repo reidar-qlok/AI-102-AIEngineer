@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
+using Microsoft.CognitiveServices.Speech;
+using Microsoft.CognitiveServices.Speech.Audio;
 
 // Import namespaces
 
@@ -20,7 +22,11 @@ namespace speaking_clock
                 string cogSvcKey = configuration["CognitiveServiceKey"];
                 string cogSvcRegion = configuration["CognitiveServiceRegion"];
 
-                // Configure speech service
+                // Konfigurera tal-tjänst
+                
+
+                // Konfigurera röst
+                
 
 
                 // Get spoken input
@@ -41,11 +47,13 @@ namespace speaking_clock
         static async Task<string> TranscribeCommand()
         {
             string command = "";
+
+            // Konfigurera taligenkänning
+  
+
+
+            // Bearbeta talinmatning
             
-            // Configure speech recognition
-
-
-            // Process speech input
 
 
             // Return the command
@@ -56,11 +64,12 @@ namespace speaking_clock
         {
             var now = DateTime.Now;
             string responseText = "The time is " + now.Hour.ToString() + ":" + now.Minute.ToString("D2");
-                        
-            // Configure speech synthesis
 
+            // Konfigurera talsyntes
+           
 
-            // Synthesize spoken output
+            // Syntetisera talad utdata
+            
 
 
             // Print the response
